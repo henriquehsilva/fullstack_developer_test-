@@ -30,9 +30,16 @@ waits for PostgreSQL and prepares the database on startup.
 Run tests and quality checks in disposable containers:
 
 ```sh
-docker compose run --rm web bin/rails test
+docker compose run --rm web bundle exec rspec
 docker compose run --rm web bin/rubocop
 docker compose run --rm web bin/brakeman --no-pager
+```
+
+Run a single unit or integration spec by passing its path:
+
+```sh
+docker compose run --rm web bundle exec rspec spec/models/application_record_spec.rb
+docker compose run --rm web bundle exec rspec spec/requests/health_check_spec.rb
 ```
 
 Create or migrate the database manually with:

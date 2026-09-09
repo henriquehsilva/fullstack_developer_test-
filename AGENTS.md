@@ -9,7 +9,7 @@ This is a Rails 8 application. Keep domain code in `app/models`, request handlin
 Use Docker Compose so development matches the documented Ruby and PostgreSQL versions:
 
 - `docker compose up --build` — build and start Rails and PostgreSQL.
-- `docker compose run --rm web bin/rails test` — run the Minitest suite.
+- `docker compose run --rm web bundle exec rspec` — run all unit and integration specs.
 - `docker compose run --rm web bin/rubocop` — check Ruby style.
 - `docker compose run --rm web bin/brakeman --no-pager` — scan for Rails security issues.
 
@@ -21,7 +21,7 @@ Follow `rubocop-rails-omakase` through `bin/rubocop`. Use two-space indentation.
 
 ## Testing Guidelines
 
-Add Minitest coverage with every behavior change and bug fix. Name files `*_test.rb`, such as `test/models/user_test.rb`. Cover successful flows, validation failures, and boundary cases; avoid tests that depend on execution order or external state.
+Add RSpec coverage with every behavior change and bug fix. Put unit specs under `spec/models` or `spec/services`, request-level integration specs under `spec/requests`, factories under `spec/factories`, and shared helpers under `spec/support`. Name files `*_spec.rb`, such as `spec/models/user_spec.rb`. Cover successful flows, validation failures, and boundary cases; avoid tests that depend on execution order or external state.
 
 ## Commit & Pull Request Guidelines
 
