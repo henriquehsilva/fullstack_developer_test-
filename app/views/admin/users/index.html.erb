@@ -1,0 +1,29 @@
+<section>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Users</h1>
+      <p class="mt-2 text-slate-500">Manage accounts, permissions, and profile details.</p>
+    </div>
+    <%= link_to "Add user", new_admin_user_path, class: "rounded-lg bg-indigo-600 px-4 py-2 text-center font-semibold text-white hover:bg-indigo-500" %>
+  </div>
+
+  <div class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <tr><th class="px-5 py-3">User</th><th class="px-5 py-3">Role</th><th class="px-5 py-3">Joined</th><th class="px-5 py-3 text-right">Actions</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% @users.each do |user| %>
+            <tr class="hover:bg-slate-50">
+              <td class="px-5 py-4"><div class="flex items-center gap-3"><%= avatar_for(user, classes: "size-10") %><div><p class="font-semibold"><%= user.full_name %></p><p class="text-sm text-slate-500"><%= user.email %></p></div></div></td>
+              <td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-semibold <%= user.admin? ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600' %>"><%= user.role.titleize %></span></td>
+              <td class="px-5 py-4 text-sm text-slate-500"><%= l(user.created_at, format: :short) %></td>
+              <td class="px-5 py-4"><div class="flex justify-end gap-2"><%= link_to "View", admin_user_path(user), class: "text-sm font-semibold text-indigo-700 hover:underline" %><%= button_to user.admin? ? "Make user" : "Make admin", toggle_role_admin_user_path(user), method: :patch, class: "text-sm font-semibold text-slate-600 hover:text-indigo-700", disabled: user == Current.user %><%= button_to "Delete", admin_user_path(user), method: :delete, form: { data: { turbo_confirm: "Delete #{user.full_name}?" } }, class: "text-sm font-semibold text-red-600 hover:underline", disabled: user == Current.user %></div></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

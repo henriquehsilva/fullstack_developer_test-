@@ -1,0 +1,4 @@
+<div class="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+  <h1 class="text-3xl font-bold">Add user</h1><p class="mt-2 mb-6 text-slate-500">Create an account and assign its initial role.</p>
+  <%= render "shared/user_form", user: @user, url: admin_users_path, submit_label: "Create user", allow_role: true %>
+</div>
