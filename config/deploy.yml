@@ -1,0 +1,41 @@
+service: fullstack_developer_test
+image: your-registry/fullstack_developer_test
+
+servers:
+  web:
+    - 192.0.2.1
+  job:
+    hosts:
+      - 192.0.2.2
+    cmd: bin/jobs
+
+proxy:
+  ssl: true
+  host: users.example.com
+  app_port: 80
+
+registry:
+  server: ghcr.io
+  username: your-github-username
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    RAILS_LOG_LEVEL: info
+    SOLID_QUEUE_IN_PUMA: false
+    RUBYOPT: --zjit
+  secret:
+    - RAILS_MASTER_KEY
+    - POSTGRES_HOST
+    - POSTGRES_DB
+    - POSTGRES_USER
+    - POSTGRES_PASSWORD
+
+volumes:
+  - "fullstack_storage:/rails/storage"
+
+asset_path: /rails/public/assets
+
+builder:
+  arch: amd64
