@@ -1,0 +1,17 @@
+<section class="mx-auto max-w-3xl">
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="h-32 bg-gradient-to-r from-indigo-600 to-violet-500"></div>
+    <div class="px-6 pb-8 sm:px-8">
+      <div class="-mt-12 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <%= avatar_for(@user, classes: "size-24 ring-4 ring-white") %>
+        <div class="flex gap-3">
+          <%= link_to "Edit profile", edit_profile_path, class: "rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-500" %>
+          <%= button_to "Delete account", profile_path, method: :delete, form: { data: { turbo_confirm: "Delete your account permanently?" } }, class: "rounded-lg border border-red-300 px-4 py-2 font-semibold text-red-700 hover:bg-red-50" %>
+        </div>
+      </div>
+      <h1 class="mt-5 text-3xl font-bold"><%= @user.full_name %></h1>
+      <p class="mt-1 text-slate-500"><%= @user.email %></p>
+      <span class="mt-4 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600"><%= @user.role %></span>
+    </div>
+  </div>
+</section>

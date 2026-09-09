@@ -1,0 +1,43 @@
+<%= form_with model: user, url: url, data: { controller: "form-validation", action: "input->form-validation#validate" }, class: "space-y-5" do |form| %>
+  <%= render "shared/errors", record: user %>
+
+  <div>
+    <%= form.label :full_name, class: "text-sm font-medium" %>
+    <%= form.text_field :full_name, required: true, minlength: 2, maxlength: 100, autocomplete: "name", class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+  </div>
+
+  <div>
+    <%= form.label :email, class: "text-sm font-medium" %>
+    <%= form.email_field :email, required: true, autocomplete: "email", class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+  </div>
+
+  <% if local_assigns[:allow_role] %>
+    <div>
+      <%= form.label :role, class: "text-sm font-medium" %>
+      <%= form.select :role, User.roles.keys.map { |role| [role.titleize, role] }, {}, class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+  <% end %>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <%= form.label :password, user.persisted? ? "New password" : "Password", class: "text-sm font-medium" %>
+      <%= form.password_field :password, required: !user.persisted?, minlength: 8, maxlength: 72, autocomplete: "new-password", class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :password_confirmation, class: "text-sm font-medium" %>
+      <%= form.password_field :password_confirmation, required: !user.persisted?, minlength: 8, maxlength: 72, autocomplete: "new-password", class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :avatar_image, "Upload avatar", class: "text-sm font-medium" %>
+    <%= form.file_field :avatar_image, accept: "image/png,image/jpeg,image/webp", class: "mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :avatar_url, "Or use a remote avatar URL", class: "text-sm font-medium" %>
+    <%= form.url_field :avatar_url, placeholder: "https://example.com/avatar.jpg", class: "mt-2 block w-full rounded-lg border border-slate-300 px-3 py-2" %>
+  </div>
+
+  <%= form.submit submit_label, data: { form_validation_target: "submit" }, class: "w-full cursor-pointer rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" %>
+<% end %>

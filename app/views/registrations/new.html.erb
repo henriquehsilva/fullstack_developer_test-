@@ -1,0 +1,5 @@
+<div class="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+  <h1 class="text-3xl font-bold tracking-tight">Create your account</h1>
+  <p class="mt-2 mb-6 text-slate-500">Join as a standard user. You can update your profile at any time.</p>
+  <%= render "shared/user_form", user: @user, url: registration_path, submit_label: "Create account" %>
+</div>
