@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: ./bin/jobs
+    command: ["bash", "-lc", "bin/rails db:prepare && exec bin/jobs"]
     environment:
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
