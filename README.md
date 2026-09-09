@@ -8,6 +8,16 @@ Rails 8.0 application running on Ruby 4.0 with PostgreSQL.
 
 ## Development
 
+Copy the environment template before starting the services:
+
+```sh
+cp .env.example .env
+```
+
+Change the sample PostgreSQL password when the environment is shared or
+accessible outside your machine. Local defaults allow the stack to start even
+when `.env` is absent.
+
 Build the images and start the application:
 
 ```sh
@@ -29,4 +39,10 @@ Create or migrate the database manually with:
 
 ```sh
 docker compose run --rm web bin/rails db:prepare
+```
+
+Open a PostgreSQL console with:
+
+```sh
+docker compose exec db psql -U postgres -d fullstack_developer_test_development
 ```
