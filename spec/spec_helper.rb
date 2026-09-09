@@ -1,3 +1,15 @@
+require "simplecov"
+
+SimpleCov.start "rails" do
+  enable_coverage :branch
+  primary_coverage :line
+  command_name "RSpec#{ENV.fetch('TEST_ENV_NUMBER', '')}"
+  minimum_coverage 90 unless ENV.key?("TEST_ENV_NUMBER")
+  cover "{app/controllers,app/jobs,app/models}/**/*.rb"
+  skip %r{^/app/channels/}
+  skip %r{^/app/mailers/}
+end
+
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
