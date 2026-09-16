@@ -61,7 +61,7 @@ group :development, :test do
   # Behavior-driven unit and integration testing
   gem "rspec-rails", "~> 8.0"
   gem "factory_bot_rails", "~> 6.5"
-  gem "parallel_tests", "~> 5.0"
+  gem "parallel_tests", "~> 5.8"
 end
 
 group :development do
