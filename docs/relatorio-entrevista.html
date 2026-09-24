@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Relatório de entrevista — Fullstack Developer Test</title>
+  <style>
+    @page { size: A4; margin: 16mm 16mm 15mm; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172033; font-size: 10.2pt; line-height: 1.42; margin: 0; }
+    h1 { color: #172554; font-size: 25pt; line-height: 1.12; margin: 0 0 6px; letter-spacing: -.6px; }
+    h2 { border-bottom: 2px solid #c7d2fe; color: #1e3a8a; font-size: 14pt; margin: 21px 0 8px; padding-bottom: 3px; }
+    h3 { color: #3730a3; font-size: 11.3pt; margin: 13px 0 3px; }
+    p { margin: 5px 0 9px; }
+    ul { margin: 5px 0 10px; padding-left: 20px; }
+    li { margin: 3px 0; }
+    code { background: #eef2ff; border-radius: 3px; color: #312e81; font-family: "SFMono-Regular", Consolas, monospace; font-size: 8.8pt; padding: 1px 3px; }
+    .cover { min-height: 235mm; display: flex; flex-direction: column; justify-content: center; }
+    .eyebrow { color: #4f46e5; font-size: 10pt; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; }
+    .subtitle { color: #475569; font-size: 14pt; max-width: 560px; }
+    .meta { border-left: 4px solid #4f46e5; margin-top: 28px; padding: 8px 13px; background: #f5f7ff; color: #334155; }
+    .page-break { break-before: page; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 9px 0; }
+    .card { background: #f8fafc; border: 1px solid #dbe4f0; border-radius: 6px; padding: 8px 10px; }
+    .card strong { color: #1e3a8a; display: block; margin-bottom: 2px; }
+    table { border-collapse: collapse; margin: 8px 0 12px; width: 100%; }
+    th { background: #e0e7ff; color: #1e3a8a; text-align: left; }
+    td, th { border: 1px solid #cbd5e1; padding: 6px 7px; vertical-align: top; }
+    .callout { background: #fffbeb; border-left: 4px solid #f59e0b; margin: 9px 0; padding: 7px 10px; }
+    .success { background: #f0fdf4; border-left: 4px solid #22c55e; margin: 9px 0; padding: 7px 10px; }
+    .footer { color: #64748b; font-size: 8.5pt; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="eyebrow">Preparação para entrevista técnica</div>
+    <h1>Fullstack Developer Test</h1>
+    <p class="subtitle">Resumo da implementação, decisões técnicas e roteiro de conversa para apresentar uma aplicação Rails 8 de gestão de usuários.</p>
+    <div class="meta">
+      <strong>Escopo analisado:</strong> código-fonte, configuração, migrations e suíte RSpec do repositório.<br>
+      <strong>Stack:</strong> Ruby 4.0.6 · Rails 8.0.5.1 · PostgreSQL 17 · Docker Compose · Hotwire · Solid Queue/Cable.<br>
+      <strong>Data:</strong> 24 de setembro de 2026.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>1. Resumo executivo</h2>
+    <p>O projeto é um monólito Rails orientado a servidor para administrar contas de usuários. Ele combina cadastro e perfil do usuário final com um backoffice protegido para administradores. O principal fluxo de maior volume — importação de planilhas — é executado de forma assíncrona, preservando feedback de progresso na interface.</p>
+    <div class="success"><strong>Frase de abertura sugerida:</strong> “Escolhi um monólito Rails porque o domínio é coeso: autenticação, gestão de usuários e importação. Isso reduz complexidade operacional, mantém transações e autorização próximas do negócio e ainda permite escalar processamento pesado por workers.”</div>
+
+    <h2>2. Funcionalidades entregues</h2>
+    <div class="grid">
+      <div class="card"><strong>Autenticação</strong>Cadastro, login, logout, sessão persistida no banco e redefinição de senha por e-mail.</div>
+      <div class="card"><strong>Perfis</strong>Consulta, edição e exclusão da própria conta; suporte a URL de avatar ou upload.</div>
+      <div class="card"><strong>Administração</strong>Dashboard, CRUD de usuários e alteração de papel entre <code>user</code> e <code>admin</code>.</div>
+      <div class="card"><strong>Importações</strong>Upload de CSV/XLSX, execução em job, isolamento de erros por linha e progresso ao vivo.</div>
+    </div>
+
+    <h2>3. Arquitetura e responsabilidades</h2>
+    <table>
+      <tr><th>Camada</th><th>Responsabilidade na implementação</th></tr>
+      <tr><td>Models</td><td><code>User</code> concentra regras de conta, senha, papéis e avatar; <code>UserImport</code> controla arquivo, status e progresso; <code>Session</code> registra sessões por usuário.</td></tr>
+      <tr><td>Controllers</td><td>Orquestram requests e usam strong parameters com <code>params.expect</code>. Controllers administrativos herdam de <code>Admin::BaseController</code>.</td></tr>
+      <tr><td>Concern</td><td><code>Authentication</code> centraliza restauração, criação e término de sessão, além de redirects de autenticação.</td></tr>
+      <tr><td>Job</td><td><code>UserImportJob</code> abre CSV/XLSX com Roo, cria usuários e persiste resultado incrementalmente.</td></tr>
+      <tr><td>Views/UX</td><td>ERB + Tailwind, Turbo Streams para atualizações e Stimulus para feedback imediato de validade de formulários.</td></tr>
+      <tr><td>Infraestrutura</td><td>Compose separa <code>web</code>, <code>worker</code> e PostgreSQL; Solid Queue e Solid Cable usam banco, evitando Redis.</td></tr>
+    </table>
+
+    <h3>Modelo de dados</h3>
+    <p><code>users</code> possui nome, e-mail único, <code>password_digest</code>, papel e URL de avatar. <code>sessions</code> pertence a um usuário e registra IP/User-Agent. <code>user_imports</code> pertence ao administrador criador e armazena status, totais e <code>error_details</code> em JSONB. Active Storage mantém os metadados de arquivos e relacionamentos.</p>
+  </section>
+
+  <section class="page-break">
+    <h2>4. Fluxos que valem explicar</h2>
+    <h3>Login e autorização</h3>
+    <ol>
+      <li><code>User.authenticate_by</code> valida credenciais protegidas por BCrypt (<code>has_secure_password</code>).</li>
+      <li>Uma linha em <code>sessions</code> é criada e seu id é salvo em cookie assinado, HTTP-only, permanente e SameSite=Lax.</li>
+      <li>Em cada request, o concern recupera a sessão pelo cookie e popula <code>Current.session</code>; <code>Current.user</code> deriva dela.</li>
+      <li><code>Admin::BaseController</code> aplica a barreira de papel no servidor. O front-end apenas reflete a permissão, não a concede.</li>
+    </ol>
+    <p>O benefício dessa modelagem é poder revogar sessões no banco e manter metadados de acesso. A contrapartida é uma consulta adicional por request, aceitável para este escopo e passível de otimização posterior com expiração/índices/cache.</p>
+
+    <h3>Importação assíncrona</h3>
+    <ol>
+      <li>O admin envia CSV ou XLSX; o model valida presença, extensão, MIME type e tamanho máximo de 10 MB.</li>
+      <li>O controller persiste <code>UserImport</code> como pendente e enfileira <code>UserImportJob</code>.</li>
+      <li>O job valida os headers <code>full_name</code> e <code>email</code>, lê as linhas com Roo e cria usuários com senha aleatória.</li>
+      <li>Falhas de validação de uma linha são acumuladas, mas não interrompem as linhas válidas. Contadores e erros são atualizados durante a execução.</li>
+      <li>Callbacks transmitem Turbo Stream para a página de importação; falhas estruturais marcam a importação como <code>failed</code> e relançam o erro para observabilidade/retry do job.</li>
+    </ol>
+    <div class="callout"><strong>Ponto importante para falar:</strong> contas importadas recebem senha aleatória; portanto o fluxo esperado é usar “esqueci minha senha” antes do primeiro login. Isso evita distribuir senhas em planilha ou em texto claro.</div>
+
+    <h3>Upload de avatar</h3>
+    <p>O usuário pode anexar JPEG, PNG ou WebP de até 5 MB com Active Storage, ou informar URL HTTP/HTTPS. A validação de negócio acontece no model e <code>avatar_source</code> dá prioridade ao arquivo anexado. Assim a view não precisa conhecer a origem do avatar.</p>
+  </section>
+
+  <section class="page-break">
+    <h2>5. Segurança e integridade</h2>
+    <ul>
+      <li>Senhas armazenadas como hash BCrypt; nunca há persistência de senha em texto claro.</li>
+      <li>CSRF permanece ativo; cookies de sessão são assinados, HTTP-only e SameSite=Lax.</li>
+      <li>Login tem rate limit: 10 tentativas em 3 minutos.</li>
+      <li>E-mail é normalizado (trim + lowercase), validado e protegido por índice único no banco — não apenas por validação de aplicação.</li>
+      <li>Parâmetros são explicitamente permitidos; durante cadastro público o papel é forçado para <code>user</code>, impedindo elevação de privilégio.</li>
+      <li>Admin não pode excluir a própria conta nem alterar seu próprio papel, protegendo o acesso administrativo atual.</li>
+      <li>Validações restringem MIME, extensão e tamanho dos uploads. As views ERB escapam conteúdo por padrão.</li>
+    </ul>
+    <p>Há testes específicos para payload de SQL injection, escape de XSS e configuração de CSRF. A análise estática prevista inclui Brakeman e RuboCop, além de auditoria do import map.</p>
+
+    <h2>6. Qualidade e testes</h2>
+    <p>A suíte usa RSpec, Factory Bot, Capybara/Selenium e SimpleCov com meta de 90% de cobertura de linhas. A separação é adequada: models para validações, requests para os contratos HTTP e autorização, job para importação, e system spec para a jornada de cadastro no navegador.</p>
+    <table>
+      <tr><th>Exemplos já cobertos</th><th>Por que importa</th></tr>
+      <tr><td>Normalização e validações do usuário; avatar inválido</td><td>Protege invariantes do domínio perto da origem.</td></tr>
+      <tr><td>CRUD admin, bloqueio de autoalteração e negação ao usuário comum</td><td>Valida o limite de autorização por request.</td></tr>
+      <tr><td>Importação válida/linha inválida e headers ausentes</td><td>Confirma processamento parcial e comportamento de erro.</td></tr>
+      <tr><td>Cadastro via browser</td><td>Garante a experiência fim a fim, incluindo formulário e redirect.</td></tr>
+    </table>
+
+    <h2>7. Melhorias honestas para mencionar</h2>
+    <ul>
+      <li>Adicionar paginação, filtros e busca ao índice administrativo antes de crescer a base de usuários.</li>
+      <li>Fazer uma revisão de segurança mais profunda para downloads/URLs remotas de avatar (por exemplo, política de host e mitigação de SSRF se o servidor buscar essas URLs).</li>
+      <li>Limitar tamanho/número de linhas da planilha e criar métricas/alertas do job; para grandes volumes, usar inserção em lote e estratégia de idempotência.</li>
+      <li>Definir política de expiração/limpeza de sessões e, se necessário, uma tela de dispositivos conectados.</li>
+      <li>Adicionar testes de autorização para todos os endpoints e testar os broadcasts Turbo de modo mais direto.</li>
+    </ul>
+
+    <h2>8. Roteiro de 90 segundos</h2>
+    <p>“A aplicação é um monólito Rails 8 para gestão de usuários. Priorizei um desenho simples de operar: PostgreSQL sustenta os dados e também Solid Queue/Solid Cable, então não há dependência de Redis. O fluxo público permite cadastro e gestão do próprio perfil; a área administrativa é protegida no servidor por role-based access control e oferece dashboard, CRUD e importação de planilhas.</p>
+    <p>Na autenticação, uso BCrypt via <code>has_secure_password</code> e sessões persistidas no banco, referenciadas por cookie assinado e HTTP-only. Isso torna revogação e auditoria de sessão mais diretas. Para imports, o request só valida, persiste e enfileira; o worker lê CSV/XLSX, trata erros por linha e transmite progresso para a UI. Cobri regras de domínio, requests de segurança e autorização, job e um fluxo de navegador. Como próximos passos, eu investiria em paginação, proteção adicional para URLs externas e escalabilidade/idempotência de imports.”</p>
+    <p class="footer">Documento gerado a partir da revisão estática deste repositório. Os comandos de verificação documentados no projeto são <code>docker compose run --rm web bundle exec rspec</code>, <code>bin/rubocop</code> e <code>bin/brakeman --no-pager</code>.</p>
+  </section>
+</body>
+</html>
